@@ -4,7 +4,8 @@
 Great, you have found me. Let’s start working together!
 
 
-
+## Forum 
+Please join our community and let´s chat 🤩 \
 [🇩🇪 Community Forum - Professionelle Auswertung Aktivitäts Check](https://community.homesmarthome.eu/t/professionelle-auswertung-aktivitaets-check/) \
 [🇺🇸 Community Forum - Entrance hall for english spreaking people](https://community.homesmarthome.eu/t/open-source-let-s-work-together-entrance-hall/)
 
