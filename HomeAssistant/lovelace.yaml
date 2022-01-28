@@ -1,0 +1,107 @@
+type: vertical-stack
+cards:
+  - type: conditional
+    conditions:
+      - entity: input_boolean.abwesend
+        state: 'off'
+    card:
+      type: gauge
+      entity: counter.timer_gauge_anzeige_helper
+      min: 0
+      needle: true
+      severity:
+        green: 0
+        yellow: 60
+        red: 80
+      name: Minuten keine Bewegung
+      max: 90
+  - type: conditional
+    conditions:
+      - entity: input_boolean.abwesend
+        state: 'on'
+    card:
+      type: map
+      entities:
+        - entity: device_tracker.iphone
+      hours_to_show: 24
+  - type: conditional
+    conditions:
+      - entity: input_boolean.abwesend
+        state: 'off'
+    card:
+      type: entities
+      entities:
+        - entity: input_select.letzte_bewegung
+      title: Schnell Übersicht
+      state_color: true
+      show_header_toggle: false
+      header:
+        type: buttons
+        entities:
+          - entity: binary_sensor.anwesendheit_2
+          - entity: input_boolean.morgens_check
+          - entity: input_boolean.kaffe_gekocht
+          - entity: input_boolean.mittags_check
+          - entity: input_boolean.nachmittags_check
+          - entity: input_boolean.abends_check
+          - entity: input_boolean.nachts_check
+          - entity: input_boolean.aufgestanden
+      footer:
+        type: buttons
+        entities:
+          - entity: binary_sensor.bewegungsmelder_aktivitats_check
+          - entity: binary_sensor.presence_26
+          - entity: binary_sensor.presence_25
+          - entity: binary_sensor.presence_28
+  - type: conditional
+    conditions:
+      - entity: input_boolean.abwesend
+        state: 'off'
+    card:
+      type: history-graph
+      entities:
+        - entity: counter.timer_gauge_anzeige_helper
+        - entity: binary_sensor.presence_25
+        - entity: binary_sensor.presence_26
+        - entity: binary_sensor.presence_27
+        - entity: binary_sensor.presence_28
+        - entity: input_select.letzte_bewegung
+        - entity: input_boolean.abwesend
+      refresh_interval: 0
+      hours_to_show: 12
+  - type: conditional
+    conditions:
+      - entity: input_boolean.abwesend
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - device_tracker.iphone
+        - entity: sensor.iphone_activity
+          name: Activity
+        - entity: sensor.iphone_average_active_pace
+          name: Average Active Pace
+        - entity: sensor.iphone_bssid
+          name: BSSID
+        - entity: sensor.iphone_battery_state
+          name: Battery State
+        - entity: sensor.iphone_connection_type
+          name: Connection Type
+        - entity: sensor.iphone_distance
+          name: Distance
+        - entity: sensor.iphone_floors_ascended
+          name: Floors Ascended
+        - entity: sensor.iphone_floors_descended
+          name: Floors Descended
+        - entity: sensor.iphone_geocoded_location
+          name: Geocoded Location
+        - entity: sensor.iphone_last_update_trigger
+          name: Last Update Trigger
+        - entity: sensor.iphone_sim_1
+          name: SIM 1
+        - entity: sensor.iphone_ssid
+          name: SSID
+        - entity: sensor.iphone_steps
+          name: Steps
+        - entity: sensor.iphone_storage
+          name: Storage
