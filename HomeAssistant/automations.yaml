@@ -1,0 +1,562 @@
+- id: '1641038493748'
+  alias: Aktivität Morgens Check
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.presence_28
+    to: 'on'
+  condition:
+  - condition: time
+    after: 05:00
+    before: '10:00'
+  - condition: state
+    entity_id: input_boolean.morgens_check
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.abwesend
+    state: 'off'
+  action:
+  - service: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.morgens_check
+  mode: single
+- id: '1641038606014'
+  alias: 'Aktivität Mittags Check '
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.presence_28
+    to: 'on'
+  condition:
+  - condition: time
+    after: '10:01'
+    before: '13:00'
+  - condition: state
+    entity_id: input_boolean.mittags_check
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.abwesend
+    state: 'off'
+  action:
+  - service: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.mittags_check
+  mode: single
+- id: '1641038740169'
+  alias: Aktivität Nachmittags Check
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.presence_28
+    to: 'on'
+  condition:
+  - condition: time
+    after: '13:01'
+    before: '16:00'
+  - condition: state
+    entity_id: input_boolean.nachmittags_check
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.abwesend
+    state: 'off'
+  action:
+  - service: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.nachmittags_check
+  mode: single
+- id: '1641038829788'
+  alias: Aktivität Abends Check
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.presence_28
+    to: 'on'
+  condition:
+  - condition: time
+    after: '16:01'
+    before: '18:00'
+  - condition: state
+    entity_id: input_boolean.abends_check
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.abwesend
+    state: 'off'
+  action:
+  - service: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.abends_check
+  mode: single
+- id: '1641199145867'
+  alias: Aktivität Check (Allgemein) Timer basiert
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.bewegungsmelder_aktivitats_check
+    to: 'on'
+  condition: []
+  action:
+  - service: timer.start
+    data:
+      duration: '0'
+    target:
+      entity_id: timer.keine_bewegung_tagsuber
+  - service: counter.reset
+    target:
+      entity_id: counter.timer_gauge_anzeige_helper
+  mode: single
+- id: '1641199287709'
+  alias: Aktivität Check - Reset
+  description: ''
+  trigger:
+  - platform: time
+    at: 03:00
+  condition: []
+  action:
+  - service: input_boolean.turn_off
+    target:
+      entity_id:
+      - input_boolean.nachmittags_check
+      - input_boolean.morgens_check
+      - input_boolean.mittags_check
+      - input_boolean.kaffe_gekocht
+      - input_boolean.abends_check
+      - input_boolean.nachts_check
+  - service: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.abfrage_schlafen
+  mode: single
+- id: '1641331451959'
+  alias: Letzte Bewegung
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.bewegungsmelder_aktivitats_check
+    to: 'on'
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.presence_28
+        state: 'on'
+      sequence:
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.letzte_bewegung
+        data:
+          option: Wohnzimmer
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.presence_27
+        state: 'on'
+      sequence:
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.letzte_bewegung
+        data:
+          option: Flur
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.presence_25
+        state: 'on'
+      sequence:
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.letzte_bewegung
+        data:
+          option: Badezimmer
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.presence_26
+        state: 'on'
+      sequence:
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.letzte_bewegung
+        data:
+          option: Schlafzimmer
+    default: []
+  mode: single
+- id: '1641332245114'
+  alias: Aktivitäts Check Benachrichtigung Amon
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: input_boolean.morgens_check
+    to: 'on'
+    id: morgens
+  - platform: state
+    entity_id: input_boolean.mittags_check
+    id: mittags
+    to: 'on'
+  - platform: state
+    entity_id: input_boolean.nachmittags_check
+    id: nachmittags
+    to: 'on'
+  - platform: state
+    entity_id: input_boolean.abends_check
+    id: Abends
+    to: 'on'
+  - platform: state
+    entity_id: input_boolean.nachts_check
+    id: nachts
+    to: 'on'
+  - platform: state
+    entity_id: counter.timer_gauge_anzeige_helper
+    id: counter60
+    to: '60'
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: morgens
+      sequence:
+      - service: notify.mobile_app_android_caretaker
+        data:
+          title: Aktivitäts Check
+          message: ✅ Morgens
+      - service: notify.mobile_app_iphone_caretaker
+        data:
+          message: ✅ Morgens
+          title: Aktivitäts Check
+          data:
+            push:
+              sound: US-EN-Morgan-Freeman-Roommate-Is-Arriving.wav
+    - conditions:
+      - condition: trigger
+        id: mittags
+      sequence:
+      - service: notify.mobile_app_android_caretaker
+        data:
+          title: Aktivitäts Check
+          message: ✅ Mittags
+      - service: notify.mobile_app_iphone_caretaker
+        data:
+          message: ✅ Mittags
+          title: Aktivitäts Check
+          data:
+            push:
+              sound: US-EN-Morgan-Freeman-Roommate-Is-Arriving.wav
+    - conditions:
+      - condition: trigger
+        id: nachmittags
+      sequence:
+      - service: notify.mobile_app_iphone_caretaker
+        data:
+          message: ✅ Nachmittags
+          title: Aktivitäts Check
+          data:
+            push:
+              sound: US-EN-Morgan-Freeman-Roommate-Is-Arriving.wav
+      - service: notify.mobile_app_android_caretaker
+        data:
+          title: Aktivitäts Check
+          message: ✅ Nachmittags
+    - conditions:
+      - condition: trigger
+        id: Abends
+      sequence:
+      - service: notify.mobile_app_android_caretaker
+        data:
+          title: Aktivitäts Check
+          message: ✅ Abends
+      - service: notify.mobile_app_iphone_caretaker
+        data:
+          message: ✅ Abends
+          title: Aktivitäts Check
+          data:
+            push:
+              sound: US-EN-Morgan-Freeman-Roommate-Is-Arriving.wav
+    - conditions:
+      - condition: trigger
+        id: nachts
+      sequence:
+      - service: notify.mobile_app_iphone_caretaker
+        data:
+          message: ✅ Nachts
+          title: Aktivitäts Check
+          data:
+            push:
+              sound: US-EN-Morgan-Freeman-Roommate-Is-Arriving.wav
+      - service: notify.mobile_app_android_caretaker
+        data:
+          title: Aktivitäts Check
+          message: ✅ Abends
+    - conditions:
+      - condition: trigger
+        id: counter60
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: input_select.letzte_bewegung
+          state: Schlafzimmer
+      sequence:
+      - service: notify.mobile_app_android_caretaker
+        data:
+          title: Aktivitäts Check
+          message: ℹ️ 60 Minuten keine Bewegung
+      - service: notify.mobile_app_iphone_caretaker
+        data:
+          message: ℹ️ 60 Minuten keine Bewegung
+          title: Aktivitäts Check
+    default: []
+  mode: single
+- id: '1641333085357'
+  alias: Aktivität Check (Allgemein) Feste Zeiten
+  description: Bei Anwesenheit und aktivierter Schutz Überwachung wird tageszeitabhänig
+    der Status aktualisiert
+  trigger:
+  - platform: state
+    to: 'on'
+    entity_id: binary_sensor.bewegungsmelder_aktivitats_check
+  condition:
+  - condition: state
+    entity_id: input_boolean.schutz_uberwachung
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.abwesend
+    state: 'off'
+  action:
+  - choose:
+    - conditions:
+      - condition: time
+        after: 05:00
+        before: '10:00'
+      sequence:
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.morgens_check
+    - conditions:
+      - condition: time
+        after: '10:00'
+        before: '14:00'
+      sequence:
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.mittags_check
+    - conditions:
+      - condition: time
+        after: '14:00'
+        before: '18:00'
+      sequence:
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.nachmittags_check
+    - conditions:
+      - condition: time
+        after: '18:00'
+        before: '23:00'
+      sequence:
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.abends_check
+    default:
+    - service: counter.reset
+      target:
+        entity_id: counter.timer_gauge_anzeige_helper
+  mode: single
+- id: '1641333909472'
+  alias: Aktivtäts Check Alarm
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.bewegungsmelder_aktivitats_check
+    to: 'off'
+    for:
+      hours: 1
+      minutes: 0
+      seconds: 0
+    id: '60'
+  - platform: state
+    entity_id: binary_sensor.bewegungsmelder_aktivitats_check
+    id: '30'
+    to: 'off'
+    for:
+      hours: 1
+      minutes: 30
+      seconds: 0
+  condition:
+  - condition: state
+    entity_id: input_boolean.abwesend
+    state: 'off'
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: input_select.letzte_bewegung
+      state: Schlafzimmer
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: '30'
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: input_select.letzte_bewegung
+          state: Schlafzimmer
+      sequence:
+      - service: notify.mobile_app_android_caretaker
+        data:
+          title: ❌ Keine Bewegung erkannt
+          message: ⚠️Eineinhalb Stunden keine Bewegung
+      - service: notify.mobile_app_iphone_caretaker
+        data:
+          title: ❌ Keine Bewegung erkannt
+          message: ⚠️Eineinhalb Stunden keine Bewegung
+          data:
+            sound:
+              name: sms-received6.caf
+              critical: 1
+              volume: 1
+    - conditions:
+      - condition: trigger
+        id: '60'
+      sequence:
+      - service: notify.mobile_app_android_caretaker
+        data:
+          title: ⚠️ Keine Bewegung erkannt
+          message: 60 Minuten keine Bewegung
+      - service: notify.mobile_app_iphone_caretaker
+        data:
+          title: ⚠️ Keine Bewegung erkannt
+          message: 60 Minuten keine Bewegung erkannt
+          data:
+            sound:
+              name: sms-received6.caf
+              critical: 1
+              volume: 0
+    default: []
+  mode: single
+- id: '1641404996826'
+  alias: Aktivitäts Check - Kaffe gekocht
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.power_14
+    above: '1000'
+  condition: []
+  action:
+  - service: notify.mobile_app_iphone_caretaker
+    data:
+      data:
+        push:
+          sound: US-EN-Morgan-Freeman-Good-Morning.wav
+      title: ✅ Aktivitäts Check
+      message: '☕️ Kaffe gekocht '
+  - service: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.kaffe_gekocht
+  mode: single
+- id: '1641459914332'
+  alias: Timer Gauge
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: /1
+  condition:
+  - condition: state
+    entity_id: timer.keine_bewegung_tagsuber
+    state: active
+  action:
+  - service: counter.increment
+    target:
+      entity_id: counter.timer_gauge_anzeige_helper
+  mode: single
+- id: '1641461167177'
+  alias: An - Abwesend Helper
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: input_boolean.abwesend
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.abwesend
+        state: 'on'
+      sequence:
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.anwesend
+    default:
+    - service: input_boolean.turn_on
+      target:
+        entity_id: input_boolean.anwesend
+  mode: single
+- id: '1641992024425'
+  alias: 'Aktivtäts Check Alarm - bypass wegen zu langsamen Bewegungsmeldern '
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.bewegungsmelder_aktivitats_check
+    to: 'off'
+    for:
+      hours: 1
+      minutes: 0
+      seconds: 0
+    id: '60'
+  - platform: state
+    entity_id: binary_sensor.bewegungsmelder_aktivitats_check
+    id: '30'
+    to: 'off'
+    for:
+      hours: 1
+      minutes: 30
+      seconds: 0
+  condition:
+  - condition: state
+    entity_id: input_boolean.abwesend
+    state: 'off'
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: input_select.letzte_bewegung
+      state: Schlafzimmer
+  - condition: time
+    after: '23:00'
+    before: 09:00
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: '30'
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: input_select.letzte_bewegung
+          state: Schlafzimmer
+      sequence:
+      - service: notify.mobile_app_android_caretaker
+        data:
+          title: ❌ Keine Bewegung erkannt
+          message: ⚠️Eineinhalb Stunden keine Bewegung
+      - service: notify.mobile_app_iphone_caretaker
+        data:
+          title: ❌ Keine Bewegung erkannt
+          message: ⚠️Eineinhalb Stunden keine Bewegung
+          data:
+            sound:
+              name: sms-received6.caf
+              critical: 1
+              volume: 1
+    - conditions:
+      - condition: trigger
+        id: '60'
+      sequence:
+      - service: notify.mobile_app_android_caretaker
+        data:
+          title: ⚠️ Keine Bewegung erkannt
+          message: 60 Minuten keine Bewegung
+      - service: notify.mobile_app_iphone_caretaker
+        data:
+          title: ⚠️ Keine Bewegung erkannt
+          message: 60 Minuten keine Bewegung erkannt
+          data:
+            sound:
+              name: sms-received6.caf
+              critical: 1
+              volume: 0
+    default: []
+  mode: single
